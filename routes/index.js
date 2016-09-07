@@ -38,6 +38,11 @@ router.post('/shows', function(req, res, next){
 })
 
 router.put('/shows/:id', function(req, res, next) {
+  if(req.body.hasOwnProperty('id')) {
+    return res.status(422).json({
+      error: 'You cannot update the id field'
+    });
+  }
   queries.update(req.params.id, req.body)
   .then(function() {
     return queries.getSingle(req.params.id);
@@ -46,6 +51,21 @@ router.put('/shows/:id', function(req, res, next) {
     res.status(200).json(show);
   })
   .catch(function(error) {
+    next(error);
+  });
+});
+
+router.delete('/shows/:id', function(req, res, next) {
+  queries.getSingle(req.params.id)
+  .then(function(show) {
+    queries.deleteItem(req.params.id)
+    .then(function() {
+      res.status(200).json(show);
+    })
+    .catch(function(error) {
+      next(error);
+    });
+  }).catch(function(error) {
     next(error);
   });
 });
